@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Diary pet project</string>
+    <string name="task_title">Task title</string>
+    <string name="task_description">Task description</string>
+    <string name="enter_title">Enter task title</string>
+    <string name="enter_content">Enter task description</string>
+    <string name="save">Save</string>
+</resources>
