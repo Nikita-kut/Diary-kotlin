@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.EditText
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.diary.nikita.kut.App
@@ -16,28 +17,41 @@ import kotlinx.android.synthetic.main.content_create_task.*
 
 class TaskDetailsActivity : AppCompatActivity() {
 
-
     private var task: Task? = null
+    private var inputTaskTitle: EditText? = null
+    private var inputTaskDescription: EditText? = null
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_task)
 
-        toolbar.title = "Tasks"
         setSupportActionBar(toolbar)
+        toolbar.title = "Tasks"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
 
         val intent = intent
-        if (intent != null && intent.hasExtra(EXTRA_TASK)) {
+        if (intent.hasExtra(EXTRA_TASK)) {
             val taskIntent: Task? = intent.getParcelableExtra(EXTRA_TASK)
             this.task = taskIntent
             text_view_task_title.setText(task?.title)
             text_view_task_description.setText(task?.description)
         }
         toolbar.title = if (task != null) "Edit task" else "Create task"
+    }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_save, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.save_note -> saveToDo()
+            android.R.id.home -> finish()
+        }
+        return true
     }
 
     companion object {
@@ -50,20 +64,6 @@ class TaskDetailsActivity : AppCompatActivity() {
             caller.startActivity(intent)
         }
     }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_save, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.save_note -> saveToDo()
-            android.R.id.home -> finish()
-        }
-        return true
-    }
-
 
     private fun saveToDo() {
         if (validateForms()) {
@@ -79,9 +79,9 @@ class TaskDetailsActivity : AppCompatActivity() {
             setResult(Activity.RESULT_OK, intent)
 
             if (intent.hasExtra(EXTRA_TASK)) {
-                App.instance.taskDao.update(task!!)
+                App.instance?.taskDao?.update(task!!)
             } else {
-                App.instance.taskDao.insertAll(task!!)
+                App.instance?.taskDao?.insertAll(task!!)
             }
             finish()
         }

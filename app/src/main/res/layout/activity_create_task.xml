@@ -9,14 +9,14 @@
         android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/Widget.Design.AppBarLayout"
+        android:theme="@style/Theme.AppCompat.AppBarOverlay"
         tools:ignore="MissingConstraints">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:popupTheme="@style/Widget.AppCompat.PopupMenu" />
+            app:popupTheme="@style/Theme.AppCompat.CompactMenu.PopupOverLay" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <include layout="@layout/content_create_task"/>

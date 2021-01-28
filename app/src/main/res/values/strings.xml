@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Diary pet project</string>
+    <string name="app_name">Easy diary</string>
     <string name="task_title">Task title</string>
     <string name="task_description">Task description</string>
     <string name="enter_title">Enter task title</string>
