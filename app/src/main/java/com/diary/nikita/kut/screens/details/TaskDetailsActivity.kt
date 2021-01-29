@@ -18,8 +18,6 @@ import kotlinx.android.synthetic.main.content_create_task.*
 class TaskDetailsActivity : AppCompatActivity() {
 
     private var task: Task? = null
-    private var inputTaskTitle: EditText? = null
-    private var inputTaskDescription: EditText? = null
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,7 +35,7 @@ class TaskDetailsActivity : AppCompatActivity() {
             this.task = taskIntent
             text_view_task_title.setText(task?.title)
             text_view_task_description.setText(task?.description)
-        }
+        } else task
         toolbar.title = if (task != null) "Edit task" else "Create task"
     }
 
