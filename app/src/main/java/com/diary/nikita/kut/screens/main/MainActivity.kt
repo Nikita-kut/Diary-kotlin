@@ -1,7 +1,6 @@
 package com.diary.nikita.kut.screens.main
 
 import android.os.Bundle
-import android.widget.Adapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -14,7 +13,7 @@ import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var recyclerView: RecyclerView
+    private var recyclerView: RecyclerView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,12 +22,11 @@ class MainActivity : AppCompatActivity() {
         toolbar.setTitle(R.string.app_name)
 
         recyclerView = recycler_view
-        recycler_view.layoutManager = LinearLayoutManager(this)
+        val linearLayoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+        recycler_view.layoutManager = linearLayoutManager
 
         val adapter = Adapter()
-        recyclerView.adapter
-
-        recycler_view.adapter = adapter
+        recyclerView?.adapter = adapter
 
         fab.setOnClickListener {
             TaskDetailsActivity.start(this, null)

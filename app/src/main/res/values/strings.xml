@@ -5,4 +5,5 @@
     <string name="enter_title">Enter task title</string>
     <string name="enter_content">Enter task description</string>
     <string name="save">Save</string>
+    <string name="create_task_activity_title">Tasks</string>
 </resources>

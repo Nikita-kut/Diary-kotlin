@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.EditText
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.diary.nikita.kut.App
@@ -25,9 +24,9 @@ class TaskDetailsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_create_task)
 
         setSupportActionBar(toolbar)
-        toolbar.title = "Tasks"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
+        toolbar.setTitle(R.string.create_task_activity_title)
 
         val intent = intent
         if (intent.hasExtra(EXTRA_TASK)) {
@@ -49,7 +48,7 @@ class TaskDetailsActivity : AppCompatActivity() {
             R.id.save_note -> saveToDo()
             android.R.id.home -> finish()
         }
-        return true
+        return super.onOptionsItemSelected(item)
     }
 
     companion object {
@@ -63,18 +62,34 @@ class TaskDetailsActivity : AppCompatActivity() {
         }
     }
 
+//    private fun saveToDo() {
+//        if (validateForms()) {
+//            val id = if (task != null) task?.id else null
+//            val toDo = Task(
+//                id = id,
+//                title = text_view_task_title.text.toString(),
+//                description = text_view_task_description.text.toString(),
+//                createdAt = System.currentTimeMillis(), done = false
+//            )
+//            val intent = Intent()
+//            intent.putExtra(EXTRA_TASK, toDo)
+//            setResult(Activity.RESULT_OK, intent)
+//
+//            if (intent.hasExtra(EXTRA_TASK)) {
+//                App.instance?.taskDao?.update(task!!)
+//            } else {
+//                App.instance?.taskDao?.insertAll(task!!)
+//            }
+//            finish()
+//        }
+//    }
+
     private fun saveToDo() {
         if (validateForms()) {
-            val id = if (task != null) task?.id else null
-            val toDo = Task(
-                id = id,
-                title = text_view_task_title.text.toString(),
-                description = text_view_task_description.text.toString(),
-                createdAt = System.currentTimeMillis(), done = false
-            )
-            val intent = Intent()
-            intent.putExtra(EXTRA_TASK, toDo)
-            setResult(Activity.RESULT_OK, intent)
+            task?.title = text_view_task_title.toString()
+            task?.description = text_view_task_description.toString()
+            task?.done = false
+            task?.createdAt = System.currentTimeMillis()
 
             if (intent.hasExtra(EXTRA_TASK)) {
                 App.instance?.taskDao?.update(task!!)

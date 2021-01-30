@@ -18,7 +18,7 @@ class App : Application() {
         dataBase = Room.databaseBuilder(applicationContext, DataBase::class.java, "db-name")
             .allowMainThreadQueries().build()
 
-        taskDao = dataBase?.TaskDao()
+        taskDao = dataBase?.taskDao()
 
     }
 
