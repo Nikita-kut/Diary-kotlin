@@ -6,36 +6,51 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.EditText
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import com.diary.nikita.kut.App
+import androidx.appcompat.widget.Toolbar
 import com.diary.nikita.kut.R
+import com.diary.nikita.kut.data.DataBase
 import com.diary.nikita.kut.model.Task
-import kotlinx.android.synthetic.main.activity_create_task.*
-import kotlinx.android.synthetic.main.content_create_task.*
+import com.google.android.material.textfield.TextInputLayout
 
 class TaskDetailsActivity : AppCompatActivity() {
 
-    private var task: Task? = null
+    lateinit var task: Task
+
+    companion object {
+        private val EXTRA_TASK: String = "TaskDetailsActivity.EXTRA_TASK"
+        private val EXTRA_MODE: String = "TaskDetailsActivity.EXTRA_MODE"
+        @JvmStatic
+        fun startWithTask(caller: Activity, task: Task) {
+            val intent = Intent(caller, TaskDetailsActivity::class.java)
+            intent.putExtra(EXTRA_TASK, task)
+            intent.putExtra(EXTRA_MODE, true)
+            caller.startActivity(intent)
+        }
+        @JvmStatic
+        fun startWithoutTask(caller: Activity) {
+            val intent = Intent(caller, TaskDetailsActivity::class.java)
+            intent.putExtra(EXTRA_MODE, false)
+            caller.startActivity(intent)
+        }
+    }
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_task)
+        setToolbar()
 
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setHomeButtonEnabled(true)
-        toolbar.setTitle(R.string.create_task_activity_title)
+        task = intent.getParcelableExtra(EXTRA_TASK) ?: throw RuntimeException("")
 
-        val intent = intent
-        if (intent.hasExtra(EXTRA_TASK)) {
-            val taskIntent: Task? = intent.getParcelableExtra(EXTRA_TASK)
-            this.task = taskIntent
-            text_view_task_title.setText(task?.title)
-            text_view_task_description.setText(task?.description)
-        } else task
-        toolbar.title = if (task != null) "Edit task" else "Create task"
+        if (intent != null && intent.hasExtra(EXTRA_TASK)) {
+            getTitleView().setText(task.title)
+            getDescriptionView().setText(task.description)
+        }
+        setToolbar().title = "Edit task"
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -51,67 +66,49 @@ class TaskDetailsActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    companion object {
-        private val EXTRA_TASK: String = "TaskDetailsActivity.EXTRA_TASK"
-        fun start(caller: Activity, task: Task?) {
-            val intent = Intent(caller, TaskDetailsActivity::class.java)
-            if (task != null) {
-                intent.putExtra(EXTRA_TASK, task)
-            }
-            caller.startActivity(intent)
-        }
+    private fun setToolbar(): Toolbar {
+        val toolbar: Toolbar = findViewById(R.id.toolbarMain)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeButtonEnabled(true)
+        toolbar.setTitle(R.string.create_task_activity_title)
+        return toolbar
     }
-
-//    private fun saveToDo() {
-//        if (validateForms()) {
-//            val id = if (task != null) task?.id else null
-//            val toDo = Task(
-//                id = id,
-//                title = text_view_task_title.text.toString(),
-//                description = text_view_task_description.text.toString(),
-//                createdAt = System.currentTimeMillis(), done = false
-//            )
-//            val intent = Intent()
-//            intent.putExtra(EXTRA_TASK, toDo)
-//            setResult(Activity.RESULT_OK, intent)
-//
-//            if (intent.hasExtra(EXTRA_TASK)) {
-//                App.instance?.taskDao?.update(task!!)
-//            } else {
-//                App.instance?.taskDao?.insertAll(task!!)
-//            }
-//            finish()
-//        }
-//    }
 
     private fun saveToDo() {
         if (validateForms()) {
-            task?.title = text_view_task_title.toString()
-            task?.description = text_view_task_description.toString()
-            task?.done = false
-            task?.createdAt = System.currentTimeMillis()
+            task.title = getTitleView().toString()
+            task.description = getDescriptionView().toString()
+            task.done = false
+            task.createdAt = System.currentTimeMillis()
 
             if (intent.hasExtra(EXTRA_TASK)) {
-                App.instance?.taskDao?.update(task!!)
+                DataBase.getInstance(this)?.taskDao()?.update(task)
             } else {
-                App.instance?.taskDao?.insertAll(task!!)
+                DataBase.getInstance(this)?.taskDao()?.insertAll(task)
             }
             finish()
         }
     }
 
     private fun validateForms(): Boolean {
-        if (text_view_task_title.text.isEmpty()) {
-            input_task_title.error = "Enter title"
-            text_view_task_title.requestFocus()
+        val tvInputTitle: TextInputLayout = findViewById(R.id.input_task_title)
+        val tvInputDescription: TextInputLayout = findViewById(R.id.input_task_description)
+        if (getTitleView().text.isEmpty()) {
+            tvInputTitle.error = "Enter title"
+            getTitleView().requestFocus()
             return false
         }
-        if (text_view_task_description.text.isEmpty()) {
-            input_task_description.error = "Enter description"
-            text_view_task_description.requestFocus()
+        if (getDescriptionView().text.isEmpty()) {
+            tvInputDescription.error = "Enter description"
+            getDescriptionView().requestFocus()
             return false
         }
         return true
     }
+
+    private fun getTitleView(): EditText = findViewById(R.id.text_view_task_title)
+    private fun getDescriptionView(): EditText = findViewById(R.id.text_view_task_description)
+
 
 }

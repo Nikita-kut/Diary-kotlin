@@ -9,11 +9,10 @@ import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
-import com.diary.nikita.kut.App
 import com.diary.nikita.kut.R
+import com.diary.nikita.kut.data.DataBase
 import com.diary.nikita.kut.model.Task
 import com.diary.nikita.kut.screens.details.TaskDetailsActivity
-import kotlinx.android.synthetic.main.task_item.view.*
 
 class Adapter : RecyclerView.Adapter<Adapter.ViewHolder>() {
 
@@ -37,21 +36,20 @@ class Adapter : RecyclerView.Adapter<Adapter.ViewHolder>() {
 
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var taskTitle: TextView = itemView.card_title
-        var taskDescription: TextView = itemView.card_description
+        var taskTitle: TextView = itemView.findViewById(R.id.card_title)
+        var taskDescription: TextView = itemView.findViewById(R.id.card_description)
         var task: Task? = null
-        var completed: CheckBox = itemView.completed
+        var completed: CheckBox = itemView.findViewById(R.id.completed)
         var silentUpdate = false
-        var delete: View = itemView.delete
+        var delete: View = itemView.findViewById(R.id.delete)
 
         init {
             itemView.setOnClickListener {
-                TaskDetailsActivity.start(
-                    itemView.context as Activity,
-                    task
+                TaskDetailsActivity.startWithoutTask(
+                    itemView.context as Activity
                 )
             }
-            delete.setOnClickListener { App.instance?.taskDao?.delete(task!!) }
+            delete.setOnClickListener { DataBase.instance?.taskDao()?.delete(task!!) }
         }
 
         fun bind(task: Task) {
