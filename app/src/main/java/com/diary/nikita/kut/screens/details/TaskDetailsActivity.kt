@@ -17,7 +17,7 @@ import com.google.android.material.textfield.TextInputLayout
 
 class TaskDetailsActivity : AppCompatActivity() {
 
-    lateinit var task: Task
+    private var task: Task = intent.getParcelableExtra(EXTRA_TASK) ?: throw RuntimeException("")
 
     companion object {
         private val EXTRA_TASK: String = "TaskDetailsActivity.EXTRA_TASK"
@@ -42,8 +42,6 @@ class TaskDetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_task)
         setToolbar()
-
-        task = intent.getParcelableExtra(EXTRA_TASK) ?: throw RuntimeException("")
 
         if (intent != null && intent.hasExtra(EXTRA_TASK)) {
             getTitleView().setText(task.title)

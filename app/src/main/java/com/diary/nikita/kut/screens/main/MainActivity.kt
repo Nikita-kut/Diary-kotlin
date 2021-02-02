@@ -9,43 +9,33 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.diary.nikita.kut.R
+import com.diary.nikita.kut.data.DataBase
+import com.diary.nikita.kut.data.TaskRepository
+import com.diary.nikita.kut.model.Task
 import com.diary.nikita.kut.screens.details.TaskDetailsActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity() {
 
+    private val adapter = Adapter()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbarMain)
-        setSupportActionBar(toolbar)
-        toolbar.setTitle(R.string.app_name)
-
         val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
-        val linearLayoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
-        recyclerView.layoutManager = linearLayoutManager
+        setSupportActionBar(toolbar)
 
-        val adapter = Adapter()
-        recyclerView.adapter = adapter
+        setRecyclerView(recyclerView)
+
+        setViewModel()
 
         val fab: FloatingActionButton = findViewById(R.id.fab)
         fab.setOnClickListener {
-            TaskDetailsActivity.startWithTask(this)
+            TaskDetailsActivity.startWithoutTask(this)
         }
 
         val calendarView: CalendarView = findViewById(R.id.calendar_view)
-        calendarView.setOnDateChangeListener { view, year, month, dayOfMonth ->
-
-        }
-
-        val mainViewModel = ViewModelProviders.of(this).get<MainViewModel>(
-            MainViewModel::class.java
-        )
-        mainViewModel.taskLiveData?.observe(
-            this,
-            Observer { tasks -> adapter.setItems(tasks) }
-        )
-
         calendarView.setOnDateChangeListener { view, year, month, dayOfMonth ->
             Toast.makeText(
                 this, """
@@ -55,6 +45,28 @@ class MainActivity : AppCompatActivity() {
             """, Toast.LENGTH_SHORT
             ).show()
         }
+
+    }
+
+    private fun onTaskClicked(task: Task) {
+        TaskDetailsActivity.startWithTask(this, task)
+    }
+
+    private fun setRecyclerView(recyclerView: RecyclerView) {
+        val linearLayoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+        recyclerView.layoutManager = linearLayoutManager
+
+        recyclerView.adapter = adapter
+    }
+
+    private fun setViewModel() {
+        val mainViewModel = ViewModelProviders.of(this).get<MainViewModel>(
+            MainViewModel::class.java
+        )
+        mainViewModel.taskLiveData?.observe(
+            this,
+            Observer { tasks -> adapter.setItems(tasks) }
+        )
     }
 
 }

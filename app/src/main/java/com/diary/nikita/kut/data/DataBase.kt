@@ -24,6 +24,4 @@ abstract class DataBase : RoomDatabase() {
             return instance
         }
     }
-
-
 }
