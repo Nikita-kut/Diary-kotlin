@@ -24,6 +24,7 @@ class Adapter : RecyclerView.Adapter<Adapter.ViewHolder>() {
         )
     }
 
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(sortedList[position])
     }
