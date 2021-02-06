@@ -1,5 +1,6 @@
 package com.diary.nikita.kut.screens.main
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.CalendarView
 import android.widget.Toast
@@ -13,26 +14,28 @@ import com.diary.nikita.kut.data.DataBase
 import com.diary.nikita.kut.data.TaskRepository
 import com.diary.nikita.kut.model.Task
 import com.diary.nikita.kut.screens.details.TaskDetailsActivity
+import com.diary.nikita.kut.utils.Constants
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), Adapter.TdEvents {
 
-    private val adapter = Adapter()
+    private var adapter: Adapter = Adapter(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbarMain)
-        val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
-        setSupportActionBar(toolbar)
+        setToolbar()
 
+        val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
         setRecyclerView(recyclerView)
 
-        setViewModel()
+        val taskViewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
+        taskViewModel.getAllLiveData().observe(this, Observer { adapter.setAlltd(it) })
 
         val fab: FloatingActionButton = findViewById(R.id.fab)
         fab.setOnClickListener {
-            TaskDetailsActivity.startWithoutTask(this)
+            val intent = Intent(this, TaskDetailsActivity::class.java)
+            startActivityForResult(intent, Constants.EXTRA_TASK)
         }
 
         val calendarView: CalendarView = findViewById(R.id.calendar_view)
@@ -48,25 +51,26 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun onTaskClicked(task: Task) {
-        TaskDetailsActivity.startWithTask(this, task)
-    }
-
     private fun setRecyclerView(recyclerView: RecyclerView) {
         val linearLayoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         recyclerView.layoutManager = linearLayoutManager
-
+        adapter = Adapter(this)
         recyclerView.adapter = adapter
     }
 
-    private fun setViewModel() {
-        val mainViewModel = ViewModelProviders.of(this).get<MainViewModel>(
-            MainViewModel::class.java
-        )
-        mainViewModel.taskLiveData?.observe(
-            this,
-            Observer { tasks -> adapter.setItems(tasks) }
-        )
+
+    private fun setToolbar() {
+        val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbarMain)
+        toolbar.setTitle(R.string.app_name)
+        setSupportActionBar(toolbar)
+    }
+
+    override fun onItemDeleted(note: Task, position: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onViewClicked(note: Task) {
+        TODO("Not yet implemented")
     }
 
 }

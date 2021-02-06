@@ -13,29 +13,15 @@ import androidx.appcompat.widget.Toolbar
 import com.diary.nikita.kut.R
 import com.diary.nikita.kut.data.DataBase
 import com.diary.nikita.kut.model.Task
+import com.diary.nikita.kut.utils.Constants
+import com.diary.nikita.kut.utils.Constants.EXTRA_TASK
+import com.diary.nikita.kut.utils.Constants.INTENT_TASK
 import com.google.android.material.textfield.TextInputLayout
 
 class TaskDetailsActivity : AppCompatActivity() {
 
-    private var task: Task = intent.getParcelableExtra(EXTRA_TASK) ?: throw RuntimeException("")
-
-    companion object {
-        private val EXTRA_TASK: String = "TaskDetailsActivity.EXTRA_TASK"
-        private val EXTRA_MODE: String = "TaskDetailsActivity.EXTRA_MODE"
-        @JvmStatic
-        fun startWithTask(caller: Activity, task: Task) {
-            val intent = Intent(caller, TaskDetailsActivity::class.java)
-            intent.putExtra(EXTRA_TASK, task)
-            intent.putExtra(EXTRA_MODE, true)
-            caller.startActivity(intent)
-        }
-        @JvmStatic
-        fun startWithoutTask(caller: Activity) {
-            val intent = Intent(caller, TaskDetailsActivity::class.java)
-            intent.putExtra(EXTRA_MODE, false)
-            caller.startActivity(intent)
-        }
-    }
+    private var task: Task? =
+        null
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,9 +29,12 @@ class TaskDetailsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_create_task)
         setToolbar()
 
-        if (intent != null && intent.hasExtra(EXTRA_TASK)) {
-            getTitleView().setText(task.title)
-            getDescriptionView().setText(task.description)
+        val intent = intent
+        if (intent != null && intent.hasExtra(INTENT_TASK)) {
+            val task: Task? = intent.getParcelableExtra(INTENT_TASK)
+            this.task = task
+            getTitleView().setText(task?.title)
+            getDescriptionView().setText(task?.description)
         }
         setToolbar().title = "Edit task"
 
@@ -53,7 +42,7 @@ class TaskDetailsActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_save, menu)
-        return super.onCreateOptionsMenu(menu)
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -61,7 +50,7 @@ class TaskDetailsActivity : AppCompatActivity() {
             R.id.save_note -> saveToDo()
             android.R.id.home -> finish()
         }
-        return super.onOptionsItemSelected(item)
+        return true
     }
 
     private fun setToolbar(): Toolbar {
@@ -75,16 +64,18 @@ class TaskDetailsActivity : AppCompatActivity() {
 
     private fun saveToDo() {
         if (validateForms()) {
-            task.title = getTitleView().toString()
-            task.description = getDescriptionView().toString()
-            task.done = false
-            task.createdAt = System.currentTimeMillis()
+            val id = if (task != null) task?.id else null
+            val todo = Task(
+                id = id,
+                title = getTitleView().toString(),
+                description = getDescriptionView().toString(),
+                createdAt = System.currentTimeMillis(),
+                done = false
+            )
 
-            if (intent.hasExtra(EXTRA_TASK)) {
-                DataBase.getInstance(this)?.taskDao()?.update(task)
-            } else {
-                DataBase.getInstance(this)?.taskDao()?.insertAll(task)
-            }
+            val intent = Intent()
+            intent.putExtra(INTENT_TASK, todo)
+            setResult(Activity.RESULT_OK, intent)
             finish()
         }
     }

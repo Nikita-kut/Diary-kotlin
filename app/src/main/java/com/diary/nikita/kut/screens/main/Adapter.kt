@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
+import android.widget.Filter
+import android.widget.Filterable
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SortedList
@@ -13,10 +15,13 @@ import com.diary.nikita.kut.R
 import com.diary.nikita.kut.data.DataBase
 import com.diary.nikita.kut.model.Task
 import com.diary.nikita.kut.screens.details.TaskDetailsActivity
+import java.util.*
 
-class Adapter : RecyclerView.Adapter<Adapter.ViewHolder>() {
+class Adapter(tdEvents: TdEvents) : RecyclerView.Adapter<Adapter.ViewHolder>(), Filterable {
 
-    private val sortedList: SortedList<Task>
+    private var tasks: List<Task> = arrayListOf()
+    private var sortedList: List<Task> = arrayListOf()
+    private val listener: TdEvents = tdEvents
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -26,103 +31,74 @@ class Adapter : RecyclerView.Adapter<Adapter.ViewHolder>() {
 
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(sortedList[position])
+        holder.bind(sortedList[position], listener)
     }
 
-    override fun getItemCount(): Int = sortedList.size()
-
-    fun setItems(task: List<Task>) {
-        sortedList.replaceAll(task)
-    }
+    override fun getItemCount(): Int = sortedList.size
 
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var taskTitle: TextView = itemView.findViewById(R.id.card_title)
-        var taskDescription: TextView = itemView.findViewById(R.id.card_description)
-        var task: Task? = null
-        var completed: CheckBox = itemView.findViewById(R.id.completed)
-        var silentUpdate = false
-        var delete: View = itemView.findViewById(R.id.delete)
 
-        init {
+        fun bind(task: Task, listener: TdEvents) {
+
+            itemView.findViewById<TextView>(R.id.card_title).text = task.title
+            itemView.findViewById<TextView>(R.id.card_description).text = task.description
+            itemView.findViewById<CheckBox>(R.id.completed).isChecked = task.done
             itemView.setOnClickListener {
-                TaskDetailsActivity.startWithoutTask(
-                    itemView.context as Activity
-                )
+                listener.onViewClicked(task)
             }
-            delete.setOnClickListener { DataBase.instance?.taskDao()?.delete(task!!) }
-        }
 
-        fun bind(task: Task) {
-            this.task = task
-            taskTitle.text = task.title
-            taskDescription.text = task.description
-            updateStrokeOut()
-            silentUpdate = true
-            completed.isChecked = task.done
-            silentUpdate = false
-        }
-
-        private fun updateStrokeOut() {
-            if (task!!.done) {
-                taskTitle.paintFlags = taskTitle.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-                taskDescription.paintFlags =
-                    taskDescription.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-            } else {
-                taskTitle.paintFlags = taskTitle.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
-                taskDescription.paintFlags =
-                    taskDescription.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG.inv()
-            }
         }
     }
 
-    init {
-        sortedList = SortedList(
-            Task::class.java,
-            object : SortedList.Callback<Task>() {
-                override fun compare(
-                    o1: Task,
-                    o2: Task
-                ): Int {
-                    if (!o2.done && o1.done) {
-                        return 1
+    fun setAlltd(tasks: List<Task>) {
+        this.tasks = tasks
+
+        this.sortedList = tasks
+    }
+
+    interface TdEvents {
+        fun onItemDeleted(note: Task, position: Int)
+        fun onViewClicked(note: Task)
+    }
+
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
+                val charString = constraint.toString()
+                sortedList = if (charString.isEmpty()) {
+                    tasks
+                } else {
+                    val sortedList = arrayListOf<Task>()
+                    for (current in tasks) {
+                        if ((current.title!!.toLowerCase(Locale.ROOT)
+                                .contains(charString.toLowerCase(Locale.ROOT))) || current.description!!.toLowerCase(
+                                Locale.ROOT
+                            )
+                                .contains(charString.toLowerCase(Locale.ROOT))
+                        ) {
+                            sortedList.add(current)
+                        }
                     }
-                    return if (o2.done && !o1.done) {
-                        -1
-                    } else (o2.createdAt - o1.createdAt).toInt()
+                    sortedList
                 }
+                val sortedResult = FilterResults()
+                sortedResult.values = sortedList
+                return sortedResult
+            }
 
-                override fun onChanged(position: Int, count: Int) {
-                    notifyItemRangeChanged(position, count)
-                }
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                sortedList = results?.values as List<Task>
+                notifyDataSetChanged()
+            }
 
-                override fun areContentsTheSame(
-                    oldItem: Task,
-                    newItem: Task
-                ): Boolean {
-                    return oldItem == newItem
-                }
-
-                override fun areItemsTheSame(
-                    item1: Task,
-                    item2: Task
-                ): Boolean {
-                    return item1.id == item2.id
-                }
-
-                override fun onInserted(position: Int, count: Int) {
-                    notifyItemRangeInserted(position, count)
-                }
-
-                override fun onRemoved(position: Int, count: Int) {
-                    notifyItemRangeRemoved(position, count)
-                }
-
-                override fun onMoved(fromPosition: Int, toPosition: Int) {
-                    notifyItemMoved(fromPosition, toPosition)
-                }
-            })
+        }
     }
 
+    fun deleteItem(position: Int) {
+        listener.onItemDeleted(tasks[position], position)
+    }
 }
+
+
 
