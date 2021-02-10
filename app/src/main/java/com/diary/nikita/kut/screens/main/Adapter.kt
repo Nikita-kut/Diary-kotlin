@@ -55,11 +55,12 @@ class Adapter(tdEvents: TdEvents) : RecyclerView.Adapter<Adapter.ViewHolder>(), 
         this.tasks = tasks
 
         this.sortedList = tasks
+        notifyDataSetChanged()
     }
 
     interface TdEvents {
-        fun onItemDeleted(note: Task, position: Int)
-        fun onViewClicked(note: Task)
+        fun onItemDeleted(task: Task, position: Int)
+        fun onViewClicked(task: Task)
     }
 
     override fun getFilter(): Filter {

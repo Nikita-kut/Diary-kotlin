@@ -12,17 +12,17 @@ abstract class DataBase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
 
     companion object {
-        var instance: DataBase? = null
+        var INSTANCE: DataBase? = null
             private set
 
         fun getInstance(context: Context): DataBase? {
-            if (instance == null) {
+            if (INSTANCE == null) {
                 synchronized(DataBase::class.java) {
-                    instance = Room.databaseBuilder(context, DataBase::class.java, "task_data_base")
+                    INSTANCE = Room.databaseBuilder(context, DataBase::class.java, "task_data_base")
                         .build()
                 }
             }
-            return instance
+            return INSTANCE
         }
     }
 }

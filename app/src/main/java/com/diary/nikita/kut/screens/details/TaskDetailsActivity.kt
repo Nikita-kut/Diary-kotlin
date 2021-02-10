@@ -11,10 +11,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.diary.nikita.kut.R
-import com.diary.nikita.kut.data.DataBase
 import com.diary.nikita.kut.model.Task
-import com.diary.nikita.kut.utils.Constants
-import com.diary.nikita.kut.utils.Constants.EXTRA_TASK
 import com.diary.nikita.kut.utils.Constants.INTENT_TASK
 import com.google.android.material.textfield.TextInputLayout
 
@@ -22,6 +19,9 @@ class TaskDetailsActivity : AppCompatActivity() {
 
     private var task: Task? =
         null
+    private val toolbar: Toolbar by lazy { findViewById<Toolbar>(R.id.toolbarMain) }
+    private val etTitle: EditText by lazy { findViewById<EditText>(R.id.edit_text_task_title) }
+    private val etDescription: EditText by lazy { findViewById<EditText>(R.id.edit_text_task_description) }
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,11 +33,11 @@ class TaskDetailsActivity : AppCompatActivity() {
         if (intent != null && intent.hasExtra(INTENT_TASK)) {
             val task: Task? = intent.getParcelableExtra(INTENT_TASK)
             this.task = task
-            getTitleView().setText(task?.title)
-            getDescriptionView().setText(task?.description)
+            etTitle.setText(task?.title)
+            etDescription.setText(task?.description)
+            etTitle.setSelection(etTitle.text.length)
         }
-        setToolbar().title = "Edit task"
-
+        toolbar.title = if (task != null) "Edit task" else "Create task"
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -54,7 +54,6 @@ class TaskDetailsActivity : AppCompatActivity() {
     }
 
     private fun setToolbar(): Toolbar {
-        val toolbar: Toolbar = findViewById(R.id.toolbarMain)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
@@ -67,8 +66,8 @@ class TaskDetailsActivity : AppCompatActivity() {
             val id = if (task != null) task?.id else null
             val todo = Task(
                 id = id,
-                title = getTitleView().toString(),
-                description = getDescriptionView().toString(),
+                title = etTitle.text.toString(),
+                description = etDescription.text.toString(),
                 createdAt = System.currentTimeMillis(),
                 done = false
             )
@@ -83,21 +82,18 @@ class TaskDetailsActivity : AppCompatActivity() {
     private fun validateForms(): Boolean {
         val tvInputTitle: TextInputLayout = findViewById(R.id.input_task_title)
         val tvInputDescription: TextInputLayout = findViewById(R.id.input_task_description)
-        if (getTitleView().text.isEmpty()) {
+        if (etTitle.text.isEmpty()) {
             tvInputTitle.error = "Enter title"
-            getTitleView().requestFocus()
+            etTitle.requestFocus()
             return false
         }
-        if (getDescriptionView().text.isEmpty()) {
+        if (etDescription.text.isEmpty()) {
             tvInputDescription.error = "Enter description"
-            getDescriptionView().requestFocus()
+            etDescription.requestFocus()
             return false
         }
         return true
     }
-
-    private fun getTitleView(): EditText = findViewById(R.id.text_view_task_title)
-    private fun getDescriptionView(): EditText = findViewById(R.id.text_view_task_description)
 
 
 }

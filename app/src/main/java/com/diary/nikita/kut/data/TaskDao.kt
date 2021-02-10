@@ -7,13 +7,14 @@ import com.diary.nikita.kut.model.Task
 @Dao
 interface TaskDao {
 
-    @Query ("SELECT * FROM Task WHERE id =:id")
+
+    @Query("SELECT * FROM Task ORDER BY id ASC")
+    fun getActiveTasks(): LiveData<List<Task>>
+
+    @Query("SELECT * FROM Task WHERE id =:id")
     fun getTask(id: Int): Task
 
-    @Query("SELECT * FROM Task")
-    fun getAllLiveData(): LiveData<List<Task>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     suspend fun saveTask(task: Task)
 
     @Update

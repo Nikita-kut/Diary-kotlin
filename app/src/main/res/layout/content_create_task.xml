@@ -20,7 +20,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <EditText
-            android:id="@+id/text_view_task_title"
+            android:id="@+id/edit_text_task_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autofillHints="true"
@@ -46,7 +46,7 @@
         app:layout_constraintTop_toBottomOf="@+id/input_task_title">
 
         <EditText
-            android:id="@+id/text_view_task_description"
+            android:id="@+id/edit_text_task_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autofillHints="true"
