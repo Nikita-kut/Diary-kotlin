@@ -19,7 +19,7 @@ class TaskDetailsActivity : AppCompatActivity() {
 
     private var task: Task? =
         null
-    private val toolbar: Toolbar by lazy { findViewById<Toolbar>(R.id.toolbarMain) }
+    private val toolbar: Toolbar by lazy { findViewById<Toolbar>(R.id.toolbar_activity_create_task) }
     private val etTitle: EditText by lazy { findViewById<EditText>(R.id.edit_text_task_title) }
     private val etDescription: EditText by lazy { findViewById<EditText>(R.id.edit_text_task_description) }
 
@@ -27,7 +27,11 @@ class TaskDetailsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_task)
-        setToolbar()
+
+        toolbar.setTitle(R.string.create_task_activity_title)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeButtonEnabled(true)
 
         val intent = intent
         if (intent != null && intent.hasExtra(INTENT_TASK)) {
@@ -53,13 +57,6 @@ class TaskDetailsActivity : AppCompatActivity() {
         return true
     }
 
-    private fun setToolbar(): Toolbar {
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setHomeButtonEnabled(true)
-        toolbar.setTitle(R.string.create_task_activity_title)
-        return toolbar
-    }
 
     private fun saveToDo() {
         if (validateForms()) {

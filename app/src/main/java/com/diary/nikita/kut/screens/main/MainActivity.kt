@@ -3,10 +3,8 @@ package com.diary.nikita.kut.screens.main
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.widget.CalendarView
-import android.widget.ImageView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,7 +24,9 @@ class MainActivity : AppCompatActivity(), Adapter.TdEvents {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        setToolbar()
+        val toolbar: Toolbar = findViewById(R.id.toolbar_activity_main)
+        toolbar.setTitle(R.string.app_name)
+        setSupportActionBar(toolbar)
         setRecyclerView()
         setViewModel()
 
@@ -35,17 +35,6 @@ class MainActivity : AppCompatActivity(), Adapter.TdEvents {
             val intent = Intent(this, TaskDetailsActivity::class.java)
             startActivityForResult(intent, Constants.EXTRA_TASK)
         }
-
-        val deleteTask = findViewById<ImageView>(R.id.delete)
-        deleteTask.setOnClickListener {
-            taskViewModel.deleteTask()
-        }
-    }
-
-    private fun setToolbar() {
-        val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbarMain)
-        toolbar.setTitle(R.string.app_name)
-        setSupportActionBar(toolbar)
     }
 
     private fun setRecyclerView() {

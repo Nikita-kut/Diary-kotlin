@@ -1,20 +1,12 @@
 package com.diary.nikita.kut.screens.main
 
-import android.app.Activity
-import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
-import android.widget.Filter
-import android.widget.Filterable
-import android.widget.TextView
+import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SortedList
 import com.diary.nikita.kut.R
-import com.diary.nikita.kut.data.DataBase
 import com.diary.nikita.kut.model.Task
-import com.diary.nikita.kut.screens.details.TaskDetailsActivity
 import java.util.*
 
 class Adapter(tdEvents: TdEvents) : RecyclerView.Adapter<Adapter.ViewHolder>(), Filterable {
@@ -44,6 +36,9 @@ class Adapter(tdEvents: TdEvents) : RecyclerView.Adapter<Adapter.ViewHolder>(), 
             itemView.findViewById<TextView>(R.id.card_title).text = task.title
             itemView.findViewById<TextView>(R.id.card_description).text = task.description
             itemView.findViewById<CheckBox>(R.id.completed).isChecked = task.done
+            itemView.findViewById<ImageView>(R.id.delete).setOnClickListener {
+                listener.onItemDeleted(task, adapterPosition)
+            }
             itemView.setOnClickListener {
                 listener.onViewClicked(task)
             }
@@ -94,10 +89,6 @@ class Adapter(tdEvents: TdEvents) : RecyclerView.Adapter<Adapter.ViewHolder>(), 
             }
 
         }
-    }
-
-    fun deleteItem(position: Int) {
-        listener.onItemDeleted(tasks[position], position)
     }
 }
 
